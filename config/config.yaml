@@ -1,0 +1,22 @@
+main:
+  watch:
+    ignore:
+      - bad_info
+      - build
+      - bad.go
+    pattern:
+      - ./.../*.go
+      - tmp/info.txt
+      - tmp/watch/.../*
+  build:
+    - env:
+        GO111MODULE: 'on'
+      script: go test ./...
+    - env:
+        GO111MODULE: 'on'
+        CGO_ENABLED: '0'
+      script: go build -o output/warden cmd/warden
+  exec:
+    env:
+      TEST_ENV: 'test'
+    script: sleep 20
