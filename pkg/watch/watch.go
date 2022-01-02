@@ -110,7 +110,7 @@ func (w *Watcher) add(dir string) error {
 		}
 		subDir := filepath.Join(dir, e.Name())
 		if w.ignore.OneMatch(e.Name()) {
-			debug.Infof("Watch: ignore dir: %s", subDir)
+			debug.Infof("Watch: Ignore dir: %s", subDir)
 			continue
 		}
 		err := w.add(subDir)
@@ -130,7 +130,7 @@ func (w *Watcher) watch() {
 				debug.Info("Closing watcher...")
 				return
 			}
-			debug.Infof("Watch: receive change: %v", event)
+			debug.Infof("Watch: Receive change: %v", event)
 			path := event.Name
 			dir := filepath.Dir(path)
 			name := filepath.Base(path)
@@ -208,4 +208,13 @@ func (w *Watcher) dirPatterns(dir string) []*pattern.Pattern {
 	}
 	w.patternMap[dir] = matches
 	return matches
+}
+
+func (w *Watcher) Close() error {
+	err := w.watcher.Close()
+	if err != nil {
+		return err
+	}
+	close(w.notify)
+	return nil
 }

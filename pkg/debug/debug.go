@@ -19,7 +19,8 @@ var (
 	fatalLogger *log.Logger
 )
 
-const logFlags = log.Lmsgprefix | log.Ldate | log.Ltime
+// const logFlags = log.Lmsgprefix | log.Ldate | log.Ltime
+const logFlags = 0
 
 func init() {
 	debugLogger = log.New(os.Stdout, newPrefix(color.CyanString("[debug]")), logFlags)
@@ -29,7 +30,7 @@ func init() {
 }
 
 func newPrefix(s string) string {
-	return fmt.Sprintf("[warden] %s ", s)
+	return fmt.Sprintf("%s %s ", color.MagentaString("[warden]"), s)
 }
 
 func Info(msg ...interface{}) {
@@ -46,8 +47,9 @@ func Infof(msg string, vs ...interface{}) {
 	debugLogger.Printf(msg, vs...)
 }
 
-func Exec(v ...interface{}) {
-	execLogger.Println(v...)
+func Execf(msg string, v ...interface{}) {
+	msg = fmt.Sprintf(msg, v...)
+	execLogger.Println(msg)
 }
 
 func Error(err error, msg string, v ...interface{}) {
@@ -61,5 +63,10 @@ func Errorf(msg string, v ...interface{}) {
 
 func Fatal(err error, msg string) {
 	fatalLogger.Printf("%s: %v", msg, err)
+	os.Exit(1)
+}
+
+func Fatalf(msg string, v ...interface{}) {
+	fatalLogger.Printf(msg, v...)
 	os.Exit(1)
 }

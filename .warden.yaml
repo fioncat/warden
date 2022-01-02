@@ -1,0 +1,20 @@
+main:
+  watch:
+    ignore:
+      - '*_test.go'
+    pattern:
+      - ./.../*.go
+      - ./config/config.yaml
+      - ./Makefile
+  build:
+    - env:
+        GO111MODULE: 'on'
+      script: go test ./...
+    - script: make debug
+    - env:
+        GO111MODULE: 'on'
+        CGO_ENABLED: '0'
+      script: go build -o output/warden cmd/warden/main.go
+
+  exec:
+    script: sleep 10

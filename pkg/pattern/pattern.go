@@ -21,7 +21,7 @@ func Parse(s string) (*Pattern, error) {
 	dir := filepath.Dir(s)
 
 	p := new(Pattern)
-	if strings.HasPrefix(dir, recursiveSuffix) {
+	if strings.HasSuffix(dir, recursiveSuffix) {
 		p.Recursive = true
 		p.Dir = strings.TrimSuffix(dir, recursiveSuffix)
 	} else {

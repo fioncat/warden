@@ -11,5 +11,5 @@ func TestDebug(t *testing.T) {
 	Infof("Hello, %s", "warden")
 	Error(errors.New("Bad happened"), "Failed to exec")
 	Errorf("Something bad happened")
-	Exec("sleep 20")
+	Execf("sleep 20")
 }
