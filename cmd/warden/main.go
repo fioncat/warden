@@ -10,8 +10,29 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const usage = `Warden is a simple command line tool to help you reload the program
+after code is changed.
+
+This command should be executed in the root path of the project.
+
+The file '.warden.yaml' need to be created first to configure the job.
+You can also use flag '-f <filename>' to specify the config file path.
+
+The definition of the file can be found in the README:
+  https://github.com/fioncat/warden/README.md
+
+You can use flag '-n <job-name>' to specify the job to execute, the
+default is 'main'.
+
+The args of this command will be passed to exec stage in the job directly,
+you can use this feature to pass extra args to the program.
+
+For more usage, please refer to the README in github.`
+
 var cmd = &cobra.Command{
 	Use: "warden",
+
+	Long: usage,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		data, err := ioutil.ReadFile(path)

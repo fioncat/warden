@@ -1,6 +1,6 @@
 # warden
 
-This is a simple command tool to help you reload the program after code is changed. You should use a yaml file to define the files to watch and scripts to run.
+Warden is a simple command line tool to help you reload the program after code is changed.
 
 ## Install
 
@@ -20,7 +20,7 @@ $ make install
 
 ## Usage
 
-You should create a file `.warden.yaml` under your project to configure the warden jobs. Each job describes the files that warden needs to watch and the scripts that need to be executed.
+You should create a file `.warden.yaml` under your project to configure the warden jobs. Each job describes the files that needs to watch and the scripts that need to be executed.
 
 A `job` contains three stages:
 
@@ -28,7 +28,7 @@ A `job` contains three stages:
 - `build`: Defines the build scripts, warden will rerun build stage after watched files are changed.
 - `exec`: Defines the main programe. This is usually a daemon process, it runs after `build` stage. Warden will kill it after watched files are changed.
 
-For example, in a Golang Web project, we want to reload the web server after go files are changed, you can define the `.warden.yaml` like this:
+For example, in a Go web project, we want to reload the web server after go files are changed, you can define the `.warden.yaml` like this:
 
 ```yaml
 main:
