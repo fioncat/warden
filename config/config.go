@@ -9,11 +9,11 @@ var defaultIgnores = []string{
 }
 
 type Job struct {
-	Delay string
-	Watch *Watch
-	Build []*Exec
-	Exec  *Exec
-	Env   Env
+	Delay string   `yaml:"delay"`
+	Watch *Watch   `yaml:"watch"`
+	Build []*Build `yaml:"build"`
+	Exec  *Exec    `yaml:"exec"`
+	Env   Env      `yaml:"env"`
 }
 
 func (job *Job) Normalize() error {
@@ -37,11 +37,15 @@ func (job *Job) Normalize() error {
 }
 
 type Watch struct {
-	Ignore  []string
-	Pattern []string
+	Ignore  []string `yaml:"ignore"`
+	Pattern []string `yaml:"pattern"`
+}
+
+type Build struct {
+	Exec `yaml:",inline"`
 }
 
 type Exec struct {
-	Env    Env
-	Script string
+	Env    Env    `yaml:"env"`
+	Script string `yaml:"script"`
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync/atomic"
 
 	"github.com/fioncat/warden/config"
 	"github.com/fioncat/warden/pkg/debug"
@@ -26,6 +27,8 @@ type Watcher struct {
 	ignore pattern.Ignore
 
 	notify chan *Event
+
+	pause uint32
 }
 
 func Run(cfg *config.Watch) (*Watcher, error) {
@@ -121,6 +124,22 @@ func (w *Watcher) add(dir string) error {
 	return nil
 }
 
+func (w *Watcher) Pause() {
+	atomic.StoreUint32(&w.pause, 1)
+}
+
+func (w *Watcher) Continue() {
+	atomic.StoreUint32(&w.pause, 0)
+}
+
+func (w *Watcher) onChange(path string) {
+	if atomic.LoadUint32(&w.pause) == 1 {
+		debug.Infof("Watch: Discard change due to pause: %s", path)
+		return
+	}
+	w.notify <- &Event{Name: path}
+}
+
 func (w *Watcher) watch() {
 	debug.Info("Begin to watch...")
 	for {
@@ -129,6 +148,9 @@ func (w *Watcher) watch() {
 			if !ok {
 				debug.Info("Closing watcher...")
 				return
+			}
+			if event.Op&fsnotify.Chmod == fsnotify.Chmod {
+				break
 			}
 			debug.Infof("Watch: Receive change: %v", event)
 			path := event.Name
@@ -142,7 +164,7 @@ func (w *Watcher) watch() {
 				}
 				for _, p := range w.dirPatterns(dir) {
 					if p.MatchName(name) {
-						w.notify <- &Event{Name: path}
+						w.onChange(path)
 						break
 					}
 				}
@@ -181,7 +203,7 @@ func (w *Watcher) watch() {
 					}
 				}
 				if matched {
-					w.notify <- &Event{Name: path}
+					w.onChange(path)
 				}
 			}
 

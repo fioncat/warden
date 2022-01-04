@@ -13,13 +13,18 @@ import (
 type Job struct {
 	watcher *watch.Watcher
 
-	builds []*exec.Cmd
+	builds []*buildExec
 
 	process *exec.Process
 
 	kill chan struct{}
 
 	delay time.Duration
+}
+
+type buildExec struct {
+	config.Build
+	cmd *exec.Cmd
 }
 
 func New(cfg *config.Job, args []string) (*Job, error) {
@@ -31,18 +36,22 @@ func New(cfg *config.Job, args []string) (*Job, error) {
 		return nil, err
 	}
 
-	job.builds = make([]*exec.Cmd, len(cfg.Build))
+	job.builds = make([]*buildExec, len(cfg.Build))
 	for i, build := range cfg.Build {
 		if len(cfg.Env) > 0 {
 			build.Env = mergeEnv(cfg.Env, build.Env)
 		}
-		cmd, err := exec.Command(build, nil)
+		cmd, err := exec.Command(&build.Exec, nil)
 		if err != nil {
 			return nil, fmt.Errorf("init job: failed "+
 				"to init build command %s: %v",
 				build.Script, err)
 		}
-		job.builds[i] = cmd
+		be := new(buildExec)
+		be.cmd = cmd
+		be.Build = *build
+
+		job.builds[i] = be
 	}
 
 	if cfg.Exec != nil {
@@ -105,7 +114,7 @@ func (job *Job) Run() {
 
 func (job *Job) exec() (bool, error) {
 	for _, build := range job.builds {
-		err := build.Run()
+		err := build.cmd.Run()
 		if err != nil {
 			return false, err
 		}

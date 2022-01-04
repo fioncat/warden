@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -20,6 +21,7 @@ type Cmd struct {
 }
 
 func Command(cfg *config.Exec, extArgs []string) (*Cmd, error) {
+	cfg.Script = envEscape(cfg.Script)
 	tmp := strings.Fields(cfg.Script)
 	if len(tmp) == 0 {
 		return nil, errors.New("script cannot be empty")
@@ -133,4 +135,15 @@ func (p *Process) Kill() {
 			p.process.Pid, err)
 		time.Sleep(time.Second)
 	}
+}
+
+var envRe = regexp.MustCompile(`\$\([^\)]+\)`)
+
+func envEscape(script string) string {
+	return envRe.ReplaceAllStringFunc(script, func(ph string) string {
+		ph = strings.TrimPrefix(ph, "$(")
+		ph = strings.TrimSuffix(ph, ")")
+		val := os.Getenv(ph)
+		return val
+	})
 }

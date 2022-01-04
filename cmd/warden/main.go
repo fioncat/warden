@@ -49,7 +49,7 @@ var (
 
 func init() {
 	cmd.PersistentFlags().StringVarP(&path, "file", "f", ".warden.yaml", "the yaml file path")
-	cmd.PersistentFlags().StringVarP(&jobName, "job", "j", "main", "job name to execute")
+	cmd.PersistentFlags().StringVarP(&jobName, "name", "n", "main", "job name to execute")
 	cmd.PersistentFlags().BoolVarP(&debug.Enable, "debug", "", false, "enable debug mode, this will show extract logs")
 }
 
